@@ -948,6 +948,277 @@ def get_workflow_logs(workflow_id_or_name, user, **kwargs):  # noqa
         return jsonify({"message": str(e)}), 500
 
 
+@blueprint.route("/workflows/<workflow_id_or_name>/job/<job_id>/logs")
+def get_job_logs(workflow_id_or_name, job_id, **kwargs):  # noqa
+    r"""Get job logs.
+
+    ---
+    get:
+      summary: Get workflow logs of a workflow.
+      description: >-
+        This resource reports the status of a workflow.
+        Resource is expecting a workflow UUID.
+      operationId: get_job_logs
+      produces:
+        - application/json
+      parameters:
+        - name: access_token
+          in: query
+          description: API access_token of workflow owner.
+          required: false
+          type: string
+        - name: workflow_id_or_name
+          in: path
+          description: Required. Analysis UUID or name.
+          required: true
+          type: string
+        - name: job_id
+          in: path
+          description: Required. Job UUID.
+          required: true
+          type: string
+      responses:
+        200:
+          description: >-
+            Request succeeded. Info about workflow, including the status is
+            returned.
+          schema:
+            type: object
+            properties:
+              job_id:
+                type: string
+              job_name:
+                type: string
+              logs:
+                type: string
+              user:
+                type: string
+          examples:
+            application/json:
+              {
+                "job_id": "256b25f4-4cfb-4684-b7a8-73872ef455a1",
+                "job_name": "mytest-1",
+                "logs": {
+                    'job_logs': string,
+                },
+                "user": "00000000-0000-0000-0000-000000000000"
+              }
+        400:
+          description: >-
+            Request failed. The incoming data specification seems malformed.
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+          examples:
+            application/json:
+              {
+                "message": "Malformed request."
+              }
+        403:
+          description: >-
+            Request failed. User is not allowed to access workflow.
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+          examples:
+            application/json:
+              {
+                "message": "User 00000000-0000-0000-0000-000000000000
+                            is not allowed to access workflow
+                            256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+        404:
+          description: >-
+            Request failed. User does not exist.
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+          examples:
+            application/json:
+              {
+                "message": "Workflow cdcf48b1-c2f3-4693-8230-b066e088c6ac does
+                            not exist"
+              }
+        500:
+          description: >-
+            Request failed. Internal controller error.
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+          examples:
+            application/json:
+              {
+                "message": "Internal controller error."
+              }
+    """
+    #raise NotImplementedError("Not implemented yet.")
+    logging.info(f"Getting logs for job {job_id} in workflow {workflow_id_or_name}")
+    try:
+        if not workflow_id_or_name:
+            raise ValueError("workflow_id_or_name is not supplied")
+
+        response, http_response = current_rwc_api_client.api.get_job_log(
+            workflow_id=workflow_id_or_name,
+            job_id=job_id,
+            **kwargs,
+        ).result()
+
+        return jsonify(response), http_response.status_code
+    except HTTPError as e:
+        logging.error(traceback.format_exc())
+        return jsonify(e.response.json()), e.response.status_code
+    except ValueError as e:
+        logging.error(traceback.format_exc())
+        return jsonify({"message": str(e)}), 403
+    except Exception as e:
+        logging.error(traceback.format_exc())
+        return jsonify({"message": str(e)}), 500
+
+
+@blueprint.route("/ddd/<workflow_id_or_name>")
+def get_ddd(workflow_id_or_name, **kwargs):  # noqa
+    r"""Get ddd logs.
+
+    ---
+    get:
+      summary: Get workflow logs of a workflow.
+      description: >-
+        This resource reports the status of a workflow.
+        Resource is expecting a workflow UUID.
+      operationId: get_ddd
+      produces:
+        - application/json
+      parameters:
+        - name: access_token
+          in: query
+          description: API access_token of workflow owner.
+          required: false
+          type: string
+        - name: workflow_id_or_name
+          in: path
+          description: Required. Analysis UUID or name.
+          required: true
+          type: string
+        - name: job_id
+          in: path
+          description: Required. Job UUID.
+          required: true
+          type: string
+      responses:
+        200:
+          description: >-
+            Request succeeded. Info about workflow, including the status is
+            returned.
+          schema:
+            type: object
+            properties:
+              job_id:
+                type: string
+              job_name:
+                type: string
+              logs:
+                type: string
+              user:
+                type: string
+          examples:
+            application/json:
+              {
+                "job_id": "256b25f4-4cfb-4684-b7a8-73872ef455a1",
+                "job_name": "mytest-1",
+                "logs": {
+                    'job_logs': string,
+                },
+                "user": "00000000-0000-0000-0000-000000000000"
+              }
+        400:
+          description: >-
+            Request failed. The incoming data specification seems malformed.
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+          examples:
+            application/json:
+              {
+                "message": "Malformed request."
+              }
+        403:
+          description: >-
+            Request failed. User is not allowed to access workflow.
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+          examples:
+            application/json:
+              {
+                "message": "User 00000000-0000-0000-0000-000000000000
+                            is not allowed to access workflow
+                            256b25f4-4cfb-4684-b7a8-73872ef455a1"
+              }
+        404:
+          description: >-
+            Request failed. User does not exist.
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+          examples:
+            application/json:
+              {
+                "message": "Workflow cdcf48b1-c2f3-4693-8230-b066e088c6ac does
+                            not exist"
+              }
+        500:
+          description: >-
+            Request failed. Internal controller error.
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+          examples:
+            application/json:
+              {
+                "message": "Internal controller error."
+              }
+    """
+    raise NotImplementedError("Not implemented yet.")
+    logging.info(f"Getting logs for job {job_id} in workflow {workflow_id_or_name}")
+    try:
+        if not workflow_id_or_name:
+            raise ValueError("workflow_id_or_name is not supplied")
+
+        response, http_response = current_rwc_api_client.api.get_job_logs(
+            user=str(user.id_),
+            workflow_id_or_name=workflow_id_or_name,
+            job_id=job_id,
+            **kwargs,
+        ).result()
+
+        return jsonify(response), http_response.status_code
+    except HTTPError as e:
+        logging.error(traceback.format_exc())
+        return jsonify(e.response.json()), e.response.status_code
+    except ValueError as e:
+        logging.error(traceback.format_exc())
+        return jsonify({"message": str(e)}), 403
+    except Exception as e:
+        logging.error(traceback.format_exc())
+        return jsonify({"message": str(e)}), 500
+
+
 @blueprint.route("/workflows/<workflow_id_or_name>/status", methods=["GET"])
 @signin_required()
 def get_workflow_status(workflow_id_or_name, user):  # noqa
